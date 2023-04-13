@@ -24,3 +24,6 @@ class DataModel:
             return False
         self.data_model.pop(path)
         return True
+
+    def is_file_open(self, path: str):
+        return path in self.data_model.keys()

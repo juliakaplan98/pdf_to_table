@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QPushButton,
+    QAbstractItemView,
 )
 from PyQt6.QtCore import Qt
 
@@ -60,6 +61,9 @@ class SidePanel:
         file_list = QListWidget()
         file_list.setFixedWidth(200)
         file_list.setFixedHeight(200)
+        file_list.setSelectionMode(
+            QAbstractItemView.SelectionMode.ExtendedSelection
+        )
         file_list.setAlternatingRowColors(True)
         return file_list
 
@@ -74,7 +78,8 @@ class SidePanel:
             self.file_buttons_v_box.addWidget(b)
 
     def add_file_to_list(self, file_name: str) -> None:
-        list_item = QListWidgetItem(file_name)
+        list_item = QListWidgetItem()
+        list_item.setText(file_name)
         self.file_list.addItem(list_item)
 
     def get_selected_file(self) -> list[str]:
@@ -82,3 +87,8 @@ class SidePanel:
             item.text() for item in self.file_list.selectedItems()
         ]
         return selected
+
+    def remove_selected_from_file_list(self) -> None:
+        selected_items: List[QListWidgetItem] = self.file_list.selectedItems()
+        for selected_item in selected_items:
+            self.file_list.takeItem(self.file_list.row(selected_item))

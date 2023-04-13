@@ -97,6 +97,8 @@ class MainWindow(QMainWindow):
         file_name, _ = QFileDialog.getOpenFileName(
             self, "Open File", "", "PDF Files (*.pdf)"
         )
+        if self.data_model.is_file_open(file_name):
+            return
         self.sp.add_file_to_list(file_name)
         # Create document viewer
         name = self.get_file_name(file_name)
@@ -108,8 +110,7 @@ class MainWindow(QMainWindow):
         pdf = OpenPDF(file_name)
         tables: List = pdf.get_pdf_tables()
         # Update data model
-        if not self.data_model.add_file_tables(file_name, tables):
-            return
+        self.data_model.add_file_tables(file_name, tables)
         name = 0
         for tbl in tables:
             table = TableWidget(tbl)
@@ -127,8 +128,11 @@ class MainWindow(QMainWindow):
     def close_file(self) -> None:
         file_names: list[str] = self.sp.get_selected_file()
         for file_name in file_names:
-            for tab in self.file_dict[file_name]:
+            for tab in reversed(self.file_dict[file_name]):
                 self.tab_bar.removeTab(tab)
+            del self.file_dict[file_name]
+            self.data_model.remove_file_tables(file_name)
+        self.sp.remove_selected_from_file_list()
 
 
 def main():
