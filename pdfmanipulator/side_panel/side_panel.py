@@ -56,7 +56,7 @@ class SidePanel:
         self.file_h_box.addLayout(self.file_buttons_v_box)
 
     def get_file_list(self) -> QListWidget:
-        """Create file list    widget"""
+        """Create file list widget"""
         file_list = QListWidget()
         file_list.setFixedWidth(200)
         file_list.setFixedHeight(200)

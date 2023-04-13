@@ -22,3 +22,5 @@ pip install pandas
 //https://pypi.org/project/PyQtWebEngine/
 
 https://pypi.org/project/PyQt6-WebEngine/
+
+https://github.com/juliakaplan98/pdf_to_table.git
