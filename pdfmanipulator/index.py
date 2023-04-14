@@ -85,6 +85,8 @@ class MainWindow(QMainWindow):
         side_bar_buttons_dict: dict[str, List[ButtonAction]] = {
             "File": [
                 ButtonAction("Open", self.open_pdf_file),
+                ButtonAction("Save As...", self.seve_selected_fales_as),
+                ButtonAction("Save All As...", self.save_all_files_as),
                 ButtonAction("Close", self.close_file),
                 ButtonAction("Close All", self.close_all_files),
             ]
@@ -140,6 +142,21 @@ class MainWindow(QMainWindow):
         self.tab_bar.clear()
         self.data_model.clean_data_model()
         self.file_dict.clear()
+
+    def seve_selected_fales_as(self) -> None:
+        """Save selected files tabs as"""
+        # Open Open File Dialog
+        file_name, _ = QFileDialog.getSaveFileName(
+            self, "Save File", "", "Excel Files (*.xlsx)"
+        )
+        selected = self.sp.get_selected_file()
+        if len(selected) == 0:
+            return
+        for file in selected:
+            self.data_model.seve_file_tables_to_xlsx(file, file_name)
+
+    def save_all_files_as(self) -> None:
+        pass
 
 
 def main():
