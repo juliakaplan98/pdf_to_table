@@ -92,3 +92,7 @@ class SidePanel:
         selected_items: List[QListWidgetItem] = self.file_list.selectedItems()
         for selected_item in selected_items:
             self.file_list.takeItem(self.file_list.row(selected_item))
+
+    def remove_all_files(self) -> None:
+        """Removes all files from file list widget"""
+        self.file_list.clear()

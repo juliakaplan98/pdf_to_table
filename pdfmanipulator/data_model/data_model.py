@@ -25,5 +25,10 @@ class DataModel:
         self.data_model.pop(path)
         return True
 
-    def is_file_open(self, path: str):
+    def is_file_open(self, path: str) -> bool:
+        """Check if file in collection"""
         return path in self.data_model.keys()
+
+    def clean_data_model(self) -> None:
+        """Clean data model, remove all information"""
+        self.data_model.clear()

@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
             "File": [
                 ButtonAction("Open", self.open_pdf_file),
                 ButtonAction("Close", self.close_file),
-                ButtonAction("Close All", None),
+                ButtonAction("Close All", self.close_all_files),
             ]
         }
         return side_bar_buttons_dict
@@ -133,6 +133,13 @@ class MainWindow(QMainWindow):
             del self.file_dict[file_name]
             self.data_model.remove_file_tables(file_name)
         self.sp.remove_selected_from_file_list()
+
+    def close_all_files(self) -> None:
+        """Removes all files from file list and all tabs"""
+        self.sp.remove_all_files()
+        self.tab_bar.clear()
+        self.data_model.clean_data_model()
+        self.file_dict.clear()
 
 
 def main():
