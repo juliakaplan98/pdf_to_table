@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt
 
-from .tables.pdf_table import TableWidget
+from .tables.table_widget import TableWidget
 from .pdf_file.open_pdf_file import OpenPDF
 from .show_file.show_file import get_web_view
 from .menu_bar.action_tuple import MenuAction
