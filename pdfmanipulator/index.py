@@ -120,7 +120,7 @@ class MainWindow(QMainWindow):
             table = TableWidget(tbl)
             if table.rows:
                 name += 1
-                tab_index = self.tab_bar.addTab(table.table_view, str(name))
+                tab_index = self.tab_bar.addTab(table, str(name))
                 self.file_dict[file_name].append(tab_index)
 
     def get_file_name(self, file_name: str) -> str:
