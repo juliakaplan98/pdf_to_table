@@ -41,3 +41,4 @@ class DataModel:
         with pd.ExcelWriter(file_name) as writer:
             for idx, tab in enumerate(tabs):
                 tab.to_excel(writer, sheet_name=f"Sheet {idx}", index=False)
+                # TODO: use XlsxWriter for formatting cells

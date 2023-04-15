@@ -26,3 +26,6 @@ https://pypi.org/project/PyQt6-WebEngine/
 https://github.com/juliakaplan98/pdf_to_table.git
 
 pip install openpyxl
+
+https://xlsxwriter.readthedocs.io/index.html#
+pip install XlsxWriter

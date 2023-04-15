@@ -42,6 +42,8 @@ class MainWindow(QMainWindow):
         self.main_h_box = QHBoxLayout()
         # Left side tab widget for all doc's and table's
         self.tab_bar = QTabWidget()
+        self.tab_bar.setMovable(True)
+        self.tab_bar.setTabsClosable(True)
         # Right side panel settings
         self.side_panel = QWidget()
         # Data model
