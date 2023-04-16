@@ -25,7 +25,7 @@ from .pdf_file.open_pdf_file import OpenPDF
 from .show_file.show_file import get_web_view
 from .menu_bar.action_tuple import MenuAction
 from .menu_bar.menu_bar import MenuBar
-from .data_model.data_model import DataModel
+from .data_model.data_model import DataModel, FileDataModel, TabDataModel
 from .side_panel.side_panel import SidePanel
 from .side_panel.button_tuple import ButtonAction
 
@@ -48,9 +48,6 @@ class MainWindow(QMainWindow):
         self.side_panel = QWidget()
         # Data model
         self.data_model = DataModel()
-
-        self.file_dict: dict[str, List[int]] = {}
-
         self.initialize_ui()
 
     def initialize_ui(self) -> None:
@@ -107,21 +104,21 @@ class MainWindow(QMainWindow):
         # Create document viewer
         name = self.get_file_name(file_name)
         web_view = get_web_view(file_name)
-        tab_index = self.tab_bar.addTab(web_view, name)
-        self.file_dict[file_name] = list()
-        self.file_dict[file_name].append(tab_index)
+        view_tab_index = self.tab_bar.addTab(web_view, name)
         # Extract tables from pdf file
         pdf = OpenPDF(file_name)
-        tables: List = pdf.get_pdf_tables()
+        tables: List[pd.DataFrame] = pdf.get_pdf_tables()
         # Update data model
-        self.data_model.add_file_tables(file_name, tables)
-        name = 0
-        for tbl in tables:
-            table = TableWidget(tbl)
+        file_data_model: FileDataModel = self.data_model.add_file_tables(
+            file_name, view_tab_index, tables
+        )
+        if not file_data_model:
+            return
+        for index, tbl in enumerate(file_data_model.tabs):
+            table = TableWidget(tbl.tab)
             if table.rows:
-                name += 1
-                tab_index = self.tab_bar.addTab(table, str(name))
-                self.file_dict[file_name].append(tab_index)
+                tab_index = self.tab_bar.addTab(table, str(index + 1))
+                tbl.tab_index = tab_index
 
     def get_file_name(self, file_name: str) -> str:
         """Returns name of the file without extension"""
@@ -143,7 +140,6 @@ class MainWindow(QMainWindow):
         self.sp.remove_all_files()
         self.tab_bar.clear()
         self.data_model.clean_data_model()
-        self.file_dict.clear()
 
     def seve_selected_fales_as(self) -> None:
         """Save selected files tabs as"""

@@ -1,12 +1,15 @@
 import pandas as pd
 import numpy as np
 import math
+from typing import Any
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import QTableView
 from PyQt6.QtCore import Qt, QModelIndex
 
 
 class TableModel(QtCore.QAbstractTableModel):
+    """implementation of QAbstractTableModel class"""
+
     def __init__(self, data: pd.DataFrame):
         super(TableModel, self).__init__()
         self._data = data
@@ -15,7 +18,8 @@ class TableModel(QtCore.QAbstractTableModel):
         self._list = self._d.tolist()
         self.rows = len(data)
 
-    def data(self, index: QModelIndex, role: int):
+    def data(self, index: QModelIndex, role: int) -> str | Any | None:
+        """ " Returns cell content"""
         if role == Qt.ItemDataRole.DisplayRole:
             # See below for the nested-list data structure.
             # .row() indexes into the outer list,
@@ -31,7 +35,7 @@ class TableModel(QtCore.QAbstractTableModel):
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = ...
-    ):
+    ) -> int | float | bool | None:
         if (
             orientation == Qt.Orientation.Horizontal
             and role == Qt.ItemDataRole.DisplayRole
@@ -45,10 +49,10 @@ class TableModel(QtCore.QAbstractTableModel):
             return f"{section + 1}"
 
     def rowCount(self, index: QModelIndex):
-        # The length of the outer list.
+        """Returns the length of the outer list."""
         return len(self._data)
 
     def columnCount(self, index: QModelIndex):
-        # The following takes the first sub-list, and returns
-        # the length (only works if all rows are an equal length)
+        """The following takes the first sub-list, and returns
+        the length (only works if all rows are an equal length)"""
         return len(self._data.columns)

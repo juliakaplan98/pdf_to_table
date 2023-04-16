@@ -22,6 +22,6 @@ class OpenPDF:
             path, pages="all"
         )
 
-    def get_pdf_tables(self) -> List:
+    def get_pdf_tables(self):
         """Returns pandas data frames"""
         return self.data_frames
