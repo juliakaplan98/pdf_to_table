@@ -20,7 +20,8 @@ class FileDataModel:
         # Create list of tab data models
         self.tabs: List[TabDataModel] = []
         for df in data_frames:
-            self.tabs.append(TabDataModel(df))
+            if len(df.index) > 0:
+                self.tabs.append(TabDataModel(df))
 
     def get_file_name(self, file_path: str) -> str:
         """Returns name of the file without extension"""

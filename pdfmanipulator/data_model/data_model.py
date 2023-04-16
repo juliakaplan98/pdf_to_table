@@ -1,6 +1,5 @@
 import pandas as pd
 from typing import List
-from pathlib import Path
 
 from .file_data_model import FileDataModel
 
@@ -46,5 +45,7 @@ class DataModel:
             return
         with pd.ExcelWriter(file_name) as writer:
             for idx, tab in enumerate(fdm.tabs):
-                tab.to_excel(writer, sheet_name=f"Sheet {idx}", index=False)
+                tab.tab.to_excel(
+                    writer, sheet_name=f"Sheet {idx}", index=False
+                )
                 # TODO: use XlsxWriter for formatting cells
