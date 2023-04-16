@@ -3,7 +3,6 @@
 import sys
 import pandas as pd
 from typing import List
-from typing import Set
 from pathlib import Path
 
 from PyQt6.QtWidgets import (
@@ -11,13 +10,10 @@ from PyQt6.QtWidgets import (
     QMainWindow,
     QFileDialog,
     QHBoxLayout,
-    QVBoxLayout,
     QWidget,
     QTabWidget,
-    QListWidget,
-    QListWidgetItem,
-    QPushButton,
 )
+
 from PyQt6.QtCore import Qt
 
 from .tables.table_widget import TableWidget
@@ -25,7 +21,8 @@ from .pdf_file.open_pdf_file import OpenPDF
 from .show_file.show_file import get_web_view
 from .menu_bar.action_tuple import MenuAction
 from .menu_bar.menu_bar import MenuBar
-from .data_model.data_model import DataModel, FileDataModel, TabDataModel
+from .data_model.data_model import DataModel, FileDataModel
+
 from .side_panel.side_panel import SidePanel
 from .side_panel.button_tuple import ButtonAction
 
@@ -127,11 +124,15 @@ class MainWindow(QMainWindow):
         return name
 
     def close_file(self) -> None:
+        """Delete all selected files"""
         file_names: list[str] = self.sp.get_selected_file()
         for file_name in file_names:
-            for tab in reversed(self.file_dict[file_name]):
+            fdm = self.data_model.get_file_tables(file_name)
+            if not fdm:
+                return
+            for tab in reversed(fdm.tabs_indexes):
                 self.tab_bar.removeTab(tab)
-            del self.file_dict[file_name]
+            self.tab_bar.removeTab(fdm.view_tab_index)
             self.data_model.remove_file_tables(file_name)
         self.sp.remove_selected_from_file_list()
 
