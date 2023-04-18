@@ -21,9 +21,9 @@ class TableWidget(QTableView):
 
     def contextMenuEvent(self, event):
         """Create context menu and additional actions."""
-        a = self.selectedIndexes()[0]
-        c = a.column()
-        v = a.row()
+        a = self.selectedIndexes()
+        c = a[0].column()
+        v = a[0].row()
         context_menu = QMenu(self)
         context_menu.addAction(self.add_row_above_act)
         context_menu.addAction(self.add_row_below_act)
