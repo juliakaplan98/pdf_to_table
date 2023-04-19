@@ -99,3 +99,5 @@ df.loc['Index5'] = ['Hive',25000,'45days',2000]
 print(df)
 
 Sumire Matsubara
+
+https://www.pythonguis.com/faq/editing-pyqt-tableview/

@@ -18,20 +18,42 @@ class TableModel(QtCore.QAbstractTableModel):
         self._list = self._d.tolist()
         self.rows = len(data)
 
-    def data(self, index: QModelIndex, role: int) -> str | Any | None:
-        """ " Returns cell content"""
-        if role == Qt.ItemDataRole.DisplayRole:
-            # See below for the nested-list data structure.
-            # .row() indexes into the outer list,
-            # .column() indexes into the sub-list
-            row: int = index.row()
-            column: int = index.column()
-            cell = self._list[row][column]
-            if isinstance(cell, str):
-                return cell
-            if math.isnan(cell):
-                return ""
-            return cell
+    @property
+    def df(self):
+        return self._data
+
+    @df.setter
+    def df(self, df):
+        self.beginResetModel()
+        self._data = df.copy()
+        self.endResetModel()
+
+    def flags(self, index):
+        return (
+            Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsEnabled
+            | Qt.ItemFlag.ItemIsEditable
+        )
+
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            self._data.iloc[index.row(), index.column()] = value
+            return True
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if index.isValid():
+            if (
+                role == Qt.ItemDataRole.DisplayRole
+                or role == Qt.ItemDataRole.EditRole
+            ):
+                value = self._data.iloc[index.row(), index.column()]
+                return str(value)
+
+    def setData(self, index, value, role):
+        if role == Qt.ItemDataRole.EditRole:
+            self._data.iloc[index.row(), index.column()] = value
+            return True
+        return False
 
     def headerData(
         self, section: int, orientation: Qt.Orientation, role: int = ...
@@ -50,9 +72,9 @@ class TableModel(QtCore.QAbstractTableModel):
 
     def rowCount(self, index: QModelIndex):
         """Returns the length of the outer list."""
-        return len(self._data)
+        return self._data.shape[0]
 
     def columnCount(self, index: QModelIndex):
         """The following takes the first sub-list, and returns
         the length (only works if all rows are an equal length)"""
-        return len(self._data.columns)
+        return self._data.shape[1]

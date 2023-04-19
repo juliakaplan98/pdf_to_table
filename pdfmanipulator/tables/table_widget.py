@@ -26,6 +26,7 @@ class TableWidget(QTableView):
         v = a[0].row()
 
         i = self.currentIndex()
+        self.edit(i)
         context_menu = QMenu(self)
         context_menu.addAction(self.add_row_above_act)
         context_menu.addAction(self.add_row_below_act)
