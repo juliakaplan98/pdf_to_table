@@ -8,6 +8,7 @@ class TabDataModel:
     def __init__(self, tab: pd.DataFrame):
         self.tab_index: int = -1
         self.tab_label: str = ""
+
         self.undo_redo_index: int = 0
         self.deleted: bool = False
         self.undo_redo_stack: List[pd.DataFrame] = [tab]

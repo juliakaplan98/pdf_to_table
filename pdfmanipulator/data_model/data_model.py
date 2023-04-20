@@ -12,13 +12,12 @@ class DataModel:
 
     def add_file_tables(
         self, path: str, view_tab_index: int, data: List[pd.DataFrame]
-    ) -> FileDataModel | None:
+    ) -> None:
         """Add tables from PDF file if not in data model"""
         if self.data_model.get(path):
             return None
         file_data_model = FileDataModel(path, view_tab_index, data)
         self.data_model[path] = file_data_model
-        return file_data_model
 
     def remove_file_tables(self, path: str) -> bool:
         """Remove tables belong to specific file"""
@@ -27,7 +26,7 @@ class DataModel:
         self.data_model.pop(path)
         return True
 
-    def get_file_tables(self, file_path: str) -> FileDataModel:
+    def get_file_tables(self, file_path: str) -> FileDataModel | None:
         return self.data_model.get(file_path)
 
     def is_file_open(self, path: str) -> bool:

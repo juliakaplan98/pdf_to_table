@@ -1,9 +1,10 @@
+# table_model.py
+# Implements QAbstractTableModel class
+
 import pandas as pd
 import numpy as np
-import math
 from typing import Any
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import QTableView
 from PyQt6.QtCore import Qt, QModelIndex
 
 
@@ -29,16 +30,12 @@ class TableModel(QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def flags(self, index):
+        """Flags to make cell editable"""
         return (
             Qt.ItemFlag.ItemIsSelectable
             | Qt.ItemFlag.ItemIsEnabled
             | Qt.ItemFlag.ItemIsEditable
         )
-
-    def setData(self, index, value, role):
-        if role == Qt.EditRole:
-            self._data.iloc[index.row(), index.column()] = value
-            return True
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if index.isValid():

@@ -16,12 +16,15 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import Qt
 
+
 from .tables.table_widget import TableWidget
 from .pdf_file.open_pdf_file import OpenPDF
 from .show_file.show_file import get_web_view
 from .menu_bar.action_tuple import MenuAction
 from .menu_bar.menu_bar import MenuBar
-from .data_model.data_model import DataModel, FileDataModel
+from .data_model.data_model import DataModel
+from .data_model.file_data_model import FileDataModel
+from .data_model.table_data_model import TabDataModel
 
 from .side_panel.side_panel import SidePanel
 from .side_panel.button_tuple import ButtonAction
@@ -98,17 +101,19 @@ class MainWindow(QMainWindow):
         if self.data_model.is_file_open(file_name):
             return
         self.sp.add_file_to_list(file_name)
+
         # Create document viewer
         name = self.get_file_name(file_name)
         web_view = get_web_view(file_name)
         view_tab_index = self.tab_bar.addTab(web_view, name)
+
         # Extract tables from pdf file
         pdf = OpenPDF(file_name)
         tables: List[pd.DataFrame] = pdf.get_pdf_tables()
-        # Update data model
-        file_data_model: FileDataModel = self.data_model.add_file_tables(
-            file_name, view_tab_index, tables
-        )
+
+        # Update data model with new file
+        self.data_model.add_file_tables(file_name, view_tab_index, tables)
+        file_data_model = self.data_model.get_file_tables(file_name)
         if not file_data_model:
             return
         for index, tbl in enumerate(file_data_model.tabs):
@@ -116,6 +121,7 @@ class MainWindow(QMainWindow):
             if table.rows:
                 tab_index = self.tab_bar.addTab(table, str(index + 1))
                 tbl.tab_index = tab_index
+                self.tab_bar.setTabToolTip(tab_index, f"{file_name}-{index+1}")
 
     def get_file_name(self, file_name: str) -> str:
         """Returns name of the file without extension"""
