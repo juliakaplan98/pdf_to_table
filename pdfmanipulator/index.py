@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
         if not file_data_model:
             return
         for index, tbl in enumerate(file_data_model.tabs):
-            table = TableWidget(tbl.tab)
+            table = TableWidget(tbl)
             if table.rows:
                 tab_index = self.tab_bar.addTab(table, str(index + 1))
                 tbl.tab_index = tab_index

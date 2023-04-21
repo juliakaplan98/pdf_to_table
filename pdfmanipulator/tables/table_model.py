@@ -7,17 +7,19 @@ from typing import Any
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt, QModelIndex
 
+from pdfmanipulator.data_model.table_data_model import TabDataModel
+
 
 class TableModel(QtCore.QAbstractTableModel):
     """implementation of QAbstractTableModel class"""
 
-    def __init__(self, data: pd.DataFrame):
+    def __init__(self, tab: TabDataModel):
         super(TableModel, self).__init__()
-        self._data = data
+        self._data = tab.tab
         self.columns = self._data.columns
         self._d: np.ndarray = self._data.to_numpy()
         self._list = self._d.tolist()
-        self.rows = len(data)
+        self.rows = len(tab.tab)
 
     @property
     def df(self):

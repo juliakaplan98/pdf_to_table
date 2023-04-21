@@ -4,32 +4,59 @@
 
 import pandas as pd
 import numpy as np
-from PyQt6.QtWidgets import QTableView, QMenu
-from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QTableView, QMenu, QHeaderView
+from PyQt6.QtGui import QAction, QContextMenuEvent
+from PyQt6.QtCore import Qt
+from PyQt6 import QtCore, QtWidgets
 
+from pdfmanipulator.data_model.table_data_model import TabDataModel
 from .table_model import TableModel
+from .table_header import TableHeader
 
 
 class TableWidget(QTableView):
     """TableWidget extends QTableView"""
 
-    def __init__(self, df: pd.DataFrame) -> None:
+    def __init__(self, tab: TabDataModel) -> None:
         super().__init__()
-        self.data_frame = df
-        self.model = TableModel(self.data_frame)
-        self.rows = self.model.rows
-        self.setModel(self.model)
+        self.tab = tab
+        self.data_frame = self.tab.tab
+        self.tmodel = TableModel(self.tab)
+        self.rows = self.tmodel.rows
+        self.setModel(self.tmodel)
         self.setMinimumHeight(500)
         self.createActions()
+        self.setAlternatingRowColors(True)
+        # Table Header
+        # self.header = self.horizontalHeader()
+        # self.header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        # self.header.contextMenuEvent = self.test
 
-    def contextMenuEvent(self, event):
+        # self.header: QHeaderView = TableHeader(Qt.Orientation.Horizontal)
+        # self.setHorizontalHeader(self.header)
+        # self.horizontalHeader().setVisible(True)
+        self.horizontalHeader().setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.horizontalHeader().customContextMenuRequested.connect(
+            self.on_customContextMenuRequested_hh
+        )
+
+    @QtCore.pyqtSlot(QtCore.QPoint)
+    def on_customContextMenuRequested_hh(self, pos):
+        menu = QtWidgets.QMenu()
+        menu.addAction("Foo Action HH")
+        a = self.horizontalHeader().mapToGlobal(pos)
+        print(a)
+
+    def contextMenuEvent(self, event: QContextMenuEvent):
         """Create context menu and additional actions."""
         a = self.selectedIndexes()
         c = a[0].column()
         v = a[0].row()
 
         i = self.currentIndex()
-        self.edit(i)
+        # self.edit(i)
         context_menu = QMenu(self)
         context_menu.addAction(self.add_row_above_act)
         context_menu.addAction(self.add_row_below_act)
@@ -82,27 +109,29 @@ class TableWidget(QTableView):
         self.clear_table_act.triggered.connect(self.clearTable)
 
     def addRowAbove(self):
-        values = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]
-        header = [col for col in self.data_frame.head().columns]
+        # i = self.currentIndex()
+        a = self.selectedIndexes()
+        # c = a[0].column()
+        row = a[0].row()
+
+        header = [col for col in self.tab.tab.head().columns]
         line = pd.DataFrame(
-            {h: v for h, v in zip(header, values)},
+            {h: " " for h in header},
             index=[0],
         )
-        self.data_frame = pd.concat([line, self.data_frame[:]]).reset_index(
-            drop=True
-        )
-
-        #  self.data_frame.loc[len(self.data_frame)] = ["1", "2", "3", "4"]
-        self.model = TableModel(self.data_frame)
-        # self.rows = self.model.rows
-        self.setModel(self.model)
-
-        # current_row = self.table_widget.currentRow()
-        # self.insertRow(current_row)
+        self.tab.insert_row(line, row + 1)
+        # self.tab.tab = pd.concat([line, self.tab.tab[:]]).reset_index(
+        #     drop=True
+        # )
+        self.tmodel = TableModel(self.tab)
+        self.setModel(self.tmodel)
 
     def addRowBelow(self):
-        current_row = self.table_widget.currentRow()
-        self.table_widget.insertRow(current_row + 1)
+        header = [col for col in self.tab.tab.head().columns]
+        line = ["" for h in header]
+        self.tab.tab.loc[len(self.tab.tab)] = line
+        self.tmodel = TableModel(self.tab)
+        self.setModel(self.tmodel)
 
     def addColumnBefore(self):
         current_col = self.table_widget.currentColumn()
