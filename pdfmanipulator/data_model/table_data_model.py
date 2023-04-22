@@ -45,10 +45,15 @@ class TabDataModel:
     def tab(self, df: pd.DataFrame) -> None:
         self.undo_redo_stack[self.undo_redo_index] = df
 
-    def insert_row(self, line, index: int) -> None:
+    def insert_empty_row(self, index: int) -> None:
         """Insert line into index"""
-        df: pd.DataFrame = self.undo_redo_stack[0].copy()
-        new_line = pd.DataFrame(line, index=[index])
+        current_tab = self.undo_redo_stack[0]
+        header = [col for col in current_tab.head().columns]
+        line = pd.DataFrame(
+            {h: " " for h in header},
+            index=[0],
+        )
+        df: pd.DataFrame = current_tab.copy()
         new_df = pd.concat(
             [df.iloc[: index - 1], line, df.iloc[index - 1 :]]
         ).reset_index(drop=True)
