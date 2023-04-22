@@ -64,14 +64,12 @@ class TableHeaders(QWidget):
         self.delete_row_act1.triggered.connect(self.delete_row1)
 
     def add_row_above1(self):
-        row = self.selectedIndexes()[0].row()
-        self.tab_data_model.insert_empty_row(row + 1)
+        self.tab_data_model.insert_empty_row(self.v + 1)
         self.table_model = TableModel(self.tab_data_model)
         self.setModel(self.table_model)
 
     def add_row_below1(self):
-        row = self.selectedIndexes()[0].row()
-        self.tab_data_model.insert_empty_row(row + 2)
+        self.tab_data_model.insert_empty_row(self.h + 2)
         self.table_model = TableModel(self.tab_data_model)
         self.setModel(self.table_model)
 
