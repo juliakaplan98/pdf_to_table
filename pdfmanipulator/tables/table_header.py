@@ -43,10 +43,16 @@ class TableHeaders(QWidget):
     def on_context_menu_event_vertical(self, pos: QtCore.QPoint):
         self.h, self.v = self.get_row_col_index(pos)
         context_menu = QMenu(self)
+
+        context_menu.addAction(self.cut_rows_act)
+        context_menu.addAction(self.copy_rows_act)
+        context_menu.addAction(self.past_rows_act)
+        context_menu.addSeparator()
         context_menu.addAction(self.add_row_above_act)
         context_menu.addAction(self.add_row_below_act)
         context_menu.addAction(self.delete_row_act)
-        context_menu.addAction(self.copy_rows_act)
+        context_menu.addAction(self.clear_row_act)
+
         context_menu.exec(self.mapToGlobal(pos))
 
     def createActions(self):
@@ -62,6 +68,15 @@ class TableHeaders(QWidget):
         self.delete_col_act.triggered.connect(self.delete_column)
 
         # Row context menu
+        self.cut_rows_act = QAction("Cut", self)
+        self.cut_rows_act.triggered.connect(self.cut_rows)
+
+        self.copy_rows_act = QAction("Copy", self)
+        self.copy_rows_act.triggered.connect(self.copy_rows)
+
+        self.past_rows_act = QAction("Past")
+        self.past_rows_act.triggered.connect(self.past_rows)
+
         self.add_row_above_act = QAction("Add Row Above", self)
         self.add_row_above_act.triggered.connect(self.add_row_above)
 
@@ -71,8 +86,22 @@ class TableHeaders(QWidget):
         self.delete_row_act = QAction("Delete Row(s)", self)
         self.delete_row_act.triggered.connect(self.delete_rows)
 
-        self.copy_rows_act = QAction("Copy Row(s)", self)
-        self.copy_rows_act.triggered.connect(self.copy_rows)
+        self.clear_row_act = QAction("Clear", self)
+        self.clear_row_act.triggered.connect(self.clear_rows)
+
+    def cut_rows(self):
+        """Cut row(s)"""
+        self.copy_rows()
+        self.clear_rows()
+
+    def copy_rows(self):
+        """Copy selected or current rows"""
+        selected_rows = self.get_selected_rows_indexes()
+        self.tab_data_model.copy_rows_by_index(selected_rows)
+
+    def past_rows(self):
+        """Pasts copied rows"""
+        selected_rows = self.get_selected_rows_indexes()
 
     def add_row_above(self) -> None:
         """Add empty row above clicked row"""
@@ -90,10 +119,11 @@ class TableHeaders(QWidget):
         self.tab_data_model.delete_row_by_index(selected_rows)
         self.update_tab_table()
 
-    def copy_rows(self):
-        """Copy selected or current rows"""
+    def clear_rows(self):
+        """Clear rows context"""
         selected_rows = self.get_selected_rows_indexes()
-        self.tab_data_model.copy_rows_by_index(selected_rows)
+        self.tab_data_model.clear_rows(selected_rows)
+        self.update_tab_table()
 
     def add_column_before(self) -> None:
         pass
