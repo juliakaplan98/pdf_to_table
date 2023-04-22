@@ -1,3 +1,5 @@
+from typing import Set
+
 import pandas as pd
 import numpy as np
 from PyQt6.QtWidgets import QTableView, QMenu, QHeaderView, QMenu, QWidget
@@ -16,7 +18,8 @@ class TableHeaders(QWidget):
         self.horizontal_header.setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch
         )
-        self.createActions1()
+        self.createActions()
+        self.h, self.v = [0, 0]
 
     def get_row_col_index(self, pos: QtCore.QPoint) -> tuple[int, int]:
         x = pos.x()
@@ -30,57 +33,81 @@ class TableHeaders(QWidget):
         """Get column and row number"""
         self.h, self.v = self.get_row_col_index(pos)
         context_menu = QMenu(self)
-        context_menu.addAction(self.add_col_before_act1)
-        context_menu.addAction(self.add_col_after_act1)
-        context_menu.addAction(self.delete_col_act1)
+        context_menu.addAction(self.add_col_before_act)
+        context_menu.addAction(self.add_col_after_act)
+        context_menu.addAction(self.delete_col_act)
         context_menu.exec(self.mapToGlobal(pos))
 
     def on_context_menu_event_vertical(self, pos: QtCore.QPoint):
         self.h, self.v = self.get_row_col_index(pos)
         context_menu = QMenu(self)
-        context_menu.addAction(self.add_row_above_act1)
-        context_menu.addAction(self.add_row_below_act1)
-        context_menu.addAction(self.delete_row_act1)
+        context_menu.addAction(self.add_row_above_act)
+        context_menu.addAction(self.add_row_below_act)
+        context_menu.addAction(self.delete_row_act)
         context_menu.exec(self.mapToGlobal(pos))
 
-    def createActions1(self):
+    def createActions(self):
         """Create headers actions."""
-        self.add_col_before_act1 = QAction("Add Column Before", self)
-        self.add_col_before_act1.triggered.connect(self.add_column_before1)
+        # Column context menu
+        self.add_col_before_act = QAction("Add Column Before", self)
+        self.add_col_before_act.triggered.connect(self.add_column_before)
 
-        self.add_col_after_act1 = QAction("Add Column After", self)
-        self.add_col_after_act1.triggered.connect(self.add_column_after1)
+        self.add_col_after_act = QAction("Add Column After", self)
+        self.add_col_after_act.triggered.connect(self.add_column_after)
 
-        self.delete_col_act1 = QAction("Delete Column", self)
-        self.delete_col_act1.triggered.connect(self.delete_column1)
+        self.delete_col_act = QAction("Delete Column", self)
+        self.delete_col_act.triggered.connect(self.delete_column)
 
-        self.add_row_above_act1 = QAction("Add Row Above", self)
-        self.add_row_above_act1.triggered.connect(self.add_row_above1)
+        # Row context menu
+        self.add_row_above_act = QAction("Add Row Above", self)
+        self.add_row_above_act.triggered.connect(self.add_row_above)
 
-        self.add_row_below_act1 = QAction("Add Row Below", self)
-        self.add_row_below_act1.triggered.connect(self.add_row_below1)
+        self.add_row_below_act = QAction("Add Row Below", self)
+        self.add_row_below_act.triggered.connect(self.add_row_below)
 
-        self.delete_row_act1 = QAction("Delete Row", self)
-        self.delete_row_act1.triggered.connect(self.delete_row1)
+        self.delete_row_act = QAction("Delete Row(s)", self)
+        self.delete_row_act.triggered.connect(self.delete_rows)
 
-    def add_row_above1(self):
+        self.copy_rows_act = QAction("Copy Row(s)", self)
+        self.copy_rows_act.triggered.connect(self.copy_rows)
+
+    def add_row_above(self) -> None:
+        """Add empty row above clicked row"""
         self.tab_data_model.insert_empty_row(self.v + 1)
+        self.update_tab_table()
+
+    def add_row_below(self) -> None:
+        """Add empty row below clicked row"""
+        self.tab_data_model.insert_empty_row(self.v + 2)
+        self.update_tab_table()
+
+    def delete_rows(self) -> None:
+        """Delete clicked row or rows selection"""
+        selected_rows = self.get_selected_rows_indexes()
+        self.tab_data_model.delete_row_by_index(selected_rows)
+        self.update_tab_table()
+
+    def copy_rows(self):
+        """Copy selected or current rows"""
+        pass
+
+    def add_column_before(self) -> None:
+        pass
+
+    def add_column_after(self) -> None:
+        pass
+
+    def delete_column(self) -> None:
+        pass
+
+    def update_tab_table(self) -> None:
+        """Update tab table with new data frame"""
         self.table_model = TableModel(self.tab_data_model)
         self.setModel(self.table_model)
 
-    def add_row_below1(self):
-        self.tab_data_model.insert_empty_row(self.h + 2)
-        self.table_model = TableModel(self.tab_data_model)
-        self.setModel(self.table_model)
-
-    def delete_row1(self):
-        pass
-
-    def add_column_before1(self):
-        pass
-
-    def add_column_after1(self):
-        pass
-
-    def delete_column1(self):
-        pass
+    def get_selected_rows_indexes(self) -> Set[int]:
+        """Returns set of indexes selected or clicked row"""
+        selected_rows = {cell.row() for cell in self.selectedIndexes()}
+        if not selected_rows or self.v not in selected_rows:
+            selected_rows = {self.v}
+        return selected_rows

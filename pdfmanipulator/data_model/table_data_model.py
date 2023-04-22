@@ -59,3 +59,9 @@ class TabDataModel:
         ).reset_index(drop=True)
         self.undo_redo_stack.insert(0, new_df)
         self.undo_redo_index = 0
+
+    def delete_row_by_index(self, indexes: List[int]) -> None:
+        new_df: pd.DataFrame = self.undo_redo_stack[0].copy()
+        new_df = new_df.drop(indexes).reset_index(drop=True)
+        self.undo_redo_stack.insert(0, new_df)
+        self.undo_redo_index = 0
