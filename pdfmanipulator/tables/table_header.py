@@ -1,4 +1,6 @@
 from typing import Set
+from typing import List
+from typing import Any
 
 import pandas as pd
 import numpy as np
@@ -44,6 +46,7 @@ class TableHeaders(QWidget):
         context_menu.addAction(self.add_row_above_act)
         context_menu.addAction(self.add_row_below_act)
         context_menu.addAction(self.delete_row_act)
+        context_menu.addAction(self.copy_rows_act)
         context_menu.exec(self.mapToGlobal(pos))
 
     def createActions(self):
@@ -89,7 +92,8 @@ class TableHeaders(QWidget):
 
     def copy_rows(self):
         """Copy selected or current rows"""
-        pass
+        selected_rows = self.get_selected_rows_indexes()
+        self.tab_data_model.copy_rows_by_index(selected_rows)
 
     def add_column_before(self) -> None:
         pass

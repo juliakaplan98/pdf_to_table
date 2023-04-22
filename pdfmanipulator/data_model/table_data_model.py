@@ -1,5 +1,7 @@
 import pandas as pd
 from typing import List
+from typing import Set
+from typing import Any
 
 
 class TabDataModel:
@@ -41,13 +43,13 @@ class TabDataModel:
     def tab(self) -> pd.DataFrame:
         return self.undo_redo_stack[self.undo_redo_index]
 
-    @tab.setter
-    def tab(self, df: pd.DataFrame) -> None:
-        self.undo_redo_stack[self.undo_redo_index] = df
+    # @tab.setter
+    # def tab(self, df: pd.DataFrame) -> None:
+    #     self.undo_redo_stack[self.undo_redo_index] = df
 
     def insert_empty_row(self, index: int) -> None:
         """Insert line into index"""
-        current_tab = self.undo_redo_stack[0]
+        current_tab = self.tab
         header = [col for col in current_tab.head().columns]
         line = pd.DataFrame(
             {h: " " for h in header},
@@ -60,8 +62,16 @@ class TabDataModel:
         self.undo_redo_stack.insert(0, new_df)
         self.undo_redo_index = 0
 
-    def delete_row_by_index(self, indexes: List[int]) -> None:
-        new_df: pd.DataFrame = self.undo_redo_stack[0].copy()
+    def delete_row_by_index(self, indexes: Set[int]) -> None:
+        """Delete row(s) from data frame"""
+        new_df: pd.DataFrame = self.tab.copy()
         new_df = new_df.drop(indexes).reset_index(drop=True)
         self.undo_redo_stack.insert(0, new_df)
         self.undo_redo_index = 0
+
+    def copy_rows_by_index(self, indexes: Set[int]) -> List[List[Any]]:
+        """Copy columns from data frame by index"""
+        rows = [
+            self.tab.loc[idx, :].values.flatten().tolist() for idx in indexes
+        ]
+        return rows
