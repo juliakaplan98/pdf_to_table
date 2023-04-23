@@ -45,7 +45,9 @@ class TabDataModel:
     def tab(self) -> pd.DataFrame:
         return self.undo_redo_stack[self.undo_redo_index]
 
-    def insert_empty_row(self, index: int) -> None:
+    def insert_empty_row(
+        self, index: int, update_undo: bool = True
+    ) -> pd.DataFrame:
         """Insert line into index"""
         current_tab = self.tab
         header = [col for col in current_tab.head().columns]
@@ -53,38 +55,71 @@ class TabDataModel:
             {h: " " for h in header},
             index=[0],
         )
-        df: pd.DataFrame = current_tab.copy()
+        new_df: pd.DataFrame = current_tab.copy()
         new_df = pd.concat(
-            [df.iloc[: index - 1], line, df.iloc[index - 1 :]]
+            [new_df.iloc[: index - 1], line, new_df.iloc[index - 1 :]]
         ).reset_index(drop=True)
-        self.add_new_dataframe_in_undo_redo(new_df)
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+        return new_df
 
-    def delete_row_by_index(self, indexes: Set[int]) -> None:
+    def delete_row_by_index(
+        self, indexes: List[int], update_undo: bool = True
+    ) -> pd.DataFrame:
         """Delete row(s) from data frame"""
         new_df: pd.DataFrame = self.tab.copy()
         new_df = new_df.drop(indexes).reset_index(drop=True)
-        self.add_new_dataframe_in_undo_redo(new_df)
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+        return new_df
 
-    def copy_rows_by_index(self, indexes: Set[int]) -> List[List[Any]]:
-        """Copy columns from data frame by index"""
+    def copy_rows_by_index(self, indexes: List[int]) -> List[List[Any]]:
+        """Copy rows from data frame by index"""
         rows = [
             self.tab.loc[idx, :].values.flatten().tolist() for idx in indexes
         ]
         CopyPast.set_copied_rows(rows)
         return rows
 
-    def clear_rows(self, indexes: Set[int]) -> None:
+    def clear_rows(
+        self, indexes: List[int], update_undo: bool = True
+    ) -> pd.DataFrame:
         """Clear context of the rows"""
         new_df: pd.DataFrame = self.tab.copy()
         line = ["" for i in range(0, len(new_df.columns))]
         for idx in indexes:
             new_df.iloc[idx, 0:] = line
-        self.add_new_dataframe_in_undo_redo(new_df)
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+        return new_df
 
-    def past_rows(self, indexes: Set[int]) -> None:
+    def past_rows(
+        self, indexes: List[int], update_undo: bool = True
+    ) -> pd.DataFrame:
         """Pasts rows from"""
+        new_df = self.delete_row_by_index(indexes, False)
+        lines = pd.DataFrame(CopyPast.get_copied_rows())
+        old_header = list(lines)
+        new_header = list(new_df)
+        lines = lines.rename(
+            columns={old: new for old, new in zip(old_header, new_header)}
+        )
+        index = indexes[0]
+        new_df = pd.concat(
+            [new_df.iloc[:index], lines, new_df.iloc[index:]]
+        ).reset_index(drop=True)
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+        return new_df
 
-    def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame):
+    def copy_columns_by_index(self, indexes: List[int]) -> List[List[Any]]:
+        """Copy columns from data frame by index"""
+        header = list(self.tab.head())
+        columns = self.tab[[header[i] for i in indexes]]
+        CopyPast.set_copied_columns(columns)
+        return columns
+
+    def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame) -> None:
         """Add new dataframe in undo redo"""
         self.undo_redo_stack.insert(0, new_df)
         self.undo_redo_index = 0
