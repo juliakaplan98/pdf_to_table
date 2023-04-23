@@ -119,6 +119,9 @@ class TabDataModel:
         CopyPast.set_copied_columns(columns)
         return columns
 
+    def past_columns(self, indexes: List[int]) -> None:
+        pass
+
     def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame) -> None:
         """Add new dataframe in undo redo"""
         self.undo_redo_stack.insert(0, new_df)

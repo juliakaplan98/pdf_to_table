@@ -6,7 +6,7 @@ from PyQt6.QtCore import Qt
 from PyQt6 import QtCore, QtWidgets
 from pdfmanipulator.data_model.table_data_model import TabDataModel
 from .table_model import TableModel
-
+from .entry_dialog_box import EntryDialogBox
 
 class TableHeaders(QWidget):
     def __init__(self):
@@ -18,6 +18,7 @@ class TableHeaders(QWidget):
         )
         self.createActions()
         self.h, self.v = [0, 0]
+
 
     def get_row_col_index(self, pos: QtCore.QPoint) -> tuple[int, int]:
         x = pos.x()
@@ -47,12 +48,12 @@ class TableHeaders(QWidget):
         context_menu = QMenu(self)
         context_menu.addAction(self.cut_columns_act)
         context_menu.addAction(self.copy_columns_act)
-        # context_menu.addAction(self.past_columns_act)
-        # context_menu.addSeparator()
-        # context_menu.addAction(self.add_column_left_act)
-        # context_menu.addAction(self.add_column_right_act)
-        # context_menu.addAction(self.delete_columns_act)
-        # context_menu.addAction(self.clear_columns_act)
+        context_menu.addAction(self.past_columns_act)
+        context_menu.addSeparator()
+        context_menu.addAction(self.add_column_left_act)
+        context_menu.addAction(self.add_column_right_act)
+        context_menu.addAction(self.delete_columns_act)
+        context_menu.addAction(self.clear_columns_act)
         context_menu.exec(self.mapToGlobal(pos))
 
     def createActions(self):
@@ -64,20 +65,20 @@ class TableHeaders(QWidget):
         self.copy_columns_act = QAction("Copy", self)
         self.copy_columns_act.triggered.connect(self.copy_columns)
 
-        # self.past_columns_act = QAction("Past")
-        # self.past_columns_act.triggered.connect(self.past_columns)
+        self.past_columns_act = QAction("Past")
+        self.past_columns_act.triggered.connect(self.past_columns)
 
-        # self.add_column_left_act = QAction("Add Column Left", self)
-        # self.add_column_left_act.triggered.connect(self.add_column_left)
+        self.add_column_left_act = QAction("Add Column Left", self)
+        self.add_column_left_act.triggered.connect(self.add_column_left)
 
-        # self.add_column_right_act = QAction("Add Column Right", self)
-        # self.add_column_right_act.triggered.connect(self.add_column_right)
+        self.add_column_right_act = QAction("Add Column Right", self)
+        self.add_column_right_act.triggered.connect(self.add_column_right)
 
-        # self.delete_columns_act = QAction("Delete Column(s)", self)
-        # self.delete_columns_act.triggered.connect(self.delete_columns)
+        self.delete_columns_act = QAction("Delete Column(s)", self)
+        self.delete_columns_act.triggered.connect(self.delete_columns)
 
-        # self.clear_columns_act = QAction("Clear", self)
-        # self.clear_columns_act.triggered.connect(self.clear_columns)
+        self.clear_columns_act = QAction("Clear", self)
+        self.clear_columns_act.triggered.connect(self.clear_columns)
 
         # Row context menu
         self.cut_rows_act = QAction("Cut", self)
@@ -149,14 +150,29 @@ class TableHeaders(QWidget):
         selected_columns = self.get_selected_columns_indexes()
         self.tab_data_model.copy_columns_by_index(selected_columns)
 
-    def add_column_before(self) -> None:
+    def past_columns(self):
+        """Pasts copied columns"""
+        selected_columns = self.get_selected_columns_indexes()
+        self.tab_data_model.past_columns(selected_columns)
+        self.update_tab_table()
+
+    def add_column_left(self) -> None:
         pass
 
-    def add_column_after(self) -> None:
+    def add_column_right(self) -> None:
         pass
 
     def delete_columns(self) -> None:
         pass
+
+    def clear_columns(self):
+        self.a = EntryDialogBox()
+        self.a.show()
+        self.a.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
+        if self.a.exec() == QtWidgets.QDialog.DialogCode.Accepted:
+            print(self.a.val)
+        print(self.a.val)
+
 
     def update_tab_table(self) -> None:
         """Update tab table with new data frame"""
