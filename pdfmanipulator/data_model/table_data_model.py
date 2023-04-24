@@ -120,16 +120,16 @@ class TabDataModel:
     def past_columns(self, indexes: List[int], update_undo: bool = True) -> None:
         """ Past columns into table """
         new_df = self.tab.copy()
-        pust_columns: pd.DataFrame = CopyPast.get_copied_columns()
+        past_columns: pd.DataFrame = CopyPast.get_copied_columns()
         index_name = new_df.head().columns[indexes[0]]
-        pust_header: List[str] = [col for col in pust_columns.head().columns]
-        header_intersection: List[str] = list(set(pust_header) & set(self.header))
+        past_header: List[str] = [col for col in past_columns.head().columns]
+        header_intersection: List[str] = list(set(past_header) & set(self.header))
         new_df = new_df.drop(columns=header_intersection)
         index = list(new_df.head().columns).index(index_name)
         if index == -1:
             index = len(new_df.head().columns)
-        for col_name in reversed(pust_header):
-            col_list = pust_columns[col_name].tolist()
+        for col_name in reversed(past_header):
+            col_list = past_columns[col_name].tolist()
             new_df.insert(loc=index+1, column=col_name, value=col_list)
 
         if update_undo:
