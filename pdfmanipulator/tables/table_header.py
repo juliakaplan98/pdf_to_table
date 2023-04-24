@@ -1,6 +1,6 @@
 from typing import List
 
-from PyQt6.QtWidgets import QTableView, QMenu, QHeaderView, QMenu, QWidget
+from PyQt6.QtWidgets import QTableView, QMenu, QHeaderView, QMenu, QWidget, QMessageBox
 from PyQt6.QtGui import QAction, QPalette, QContextMenuEvent
 from PyQt6.QtCore import Qt
 from PyQt6 import QtCore, QtWidgets
@@ -154,24 +154,57 @@ class TableHeaders(QWidget):
         """Pasts copied columns"""
         selected_columns = self.get_selected_columns_indexes()
         self.tab_data_model.past_columns(selected_columns)
-        self.update_tab_table()
+        self.update_tab_table() ########################### finish
 
     def add_column_left(self) -> None:
-        pass
+        """ Creates new empty column on the left"""
+        index = self.h
+        self.add_column_by_index(index)
 
     def add_column_right(self) -> None:
-        pass
+        """ Creates new empty column on the right"""
+        index = self.h + 1
+        self.add_column_by_index(index)
+
+    def add_column_by_index(self, index: int)->None:
+        """ Adding column by index"""
+        columns_name = self.tab_data_model.header
+        dialog = EntryDialogBox(
+            title="New Column Name",
+            prompt="Please enter new column name.",
+            text="text")
+        dialog.exec()
+        name = dialog.text
+        if name in columns_name:
+            QMessageBox.critical(
+                self,
+                "Column Name Exist",
+                f"Name: '{name}' already exist.",
+                QMessageBox.StandardButton.Ok,
+                QMessageBox.StandardButton.Ok
+            )
+            return
+        self.tab_data_model.insert_empty_column(index, name)
+        self.update_tab_table()
 
     def delete_columns(self) -> None:
         pass
 
     def clear_columns(self):
-        self.a = EntryDialogBox()
+        self.a = EntryDialogBox(
+            title="Column Name",
+            prompt="Please enter new column name.",
+            text="text")
         self.a.show()
-        self.a.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
+        self.a.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         if self.a.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            print(self.a.val)
-        print(self.a.val)
+            print(self.a.text)
+        print(self.a.text)
+        answer = QMessageBox.question(self,
+            "Author Not Found",
+            """<p>Author not found in catalogue.</p>
+            <p>Do you wish to continue?</p>""",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
 
 
     def update_tab_table(self) -> None:

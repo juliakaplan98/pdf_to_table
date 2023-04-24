@@ -49,13 +49,11 @@ class TabDataModel:
         self, index: int, update_undo: bool = True
     ) -> pd.DataFrame:
         """Insert line into index"""
-        current_tab = self.tab
-        header = [col for col in current_tab.head().columns]
         line = pd.DataFrame(
-            {h: " " for h in header},
+            {h: " " for h in self.header},
             index=[0],
         )
-        new_df: pd.DataFrame = current_tab.copy()
+        new_df: pd.DataFrame = self.tab.copy()
         new_df = pd.concat(
             [new_df.iloc[: index - 1], line, new_df.iloc[index - 1 :]]
         ).reset_index(drop=True)
@@ -122,6 +120,14 @@ class TabDataModel:
     def past_columns(self, indexes: List[int]) -> None:
         pass
 
+    def insert_empty_column(self, index, name, update_undo: bool = True):
+        """ Insert empty column with name """
+        new_df = self.tab.copy()
+        new_df.insert(loc=index, column=name, value=" ")
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+
+
     def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame) -> None:
         """Add new dataframe in undo redo"""
         self.undo_redo_stack.insert(0, new_df)
@@ -129,3 +135,10 @@ class TabDataModel:
 
     def get_copied_rows(self) -> List[List[Any]]:
         return CopyPast.get_copied_rows()
+
+    @property
+    def header(self) -> List[str]:
+        """ Return header of current data frame as list"""
+        header = [col for col in self.tab.head().columns]
+        return header
+
