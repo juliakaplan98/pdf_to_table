@@ -127,6 +127,13 @@ class TabDataModel:
         if update_undo:
             self.add_new_dataframe_in_undo_redo(new_df)
 
+    def delete_columns(self, indexes: List[int], update_undo: bool = True)->None:
+        """ Delete selected columns """
+        columns = [self.header[i] for i in indexes]
+        new_df = self.tab.copy()
+        new_df = new_df.drop(columns=columns)
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
 
     def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame) -> None:
         """Add new dataframe in undo redo"""

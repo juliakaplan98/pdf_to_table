@@ -13,6 +13,7 @@ class TableHeaders(QWidget):
         super().__init__()
         self.vertical_header: QHeaderView = self.verticalHeader()
         self.horizontal_header: QHeaderView = self.horizontalHeader()
+        self.table_model: TableModel = None
         self.horizontal_header.setSectionResizeMode(
             QHeaderView.ResizeMode.Stretch
         )
@@ -147,13 +148,11 @@ class TableHeaders(QWidget):
 
     def copy_columns(self):
         """Copy selected or current columns"""
-        selected_columns = self.get_selected_columns_indexes()
-        self.tab_data_model.copy_columns_by_index(selected_columns)
+        self.tab_data_model.copy_columns_by_index(self.selected_columns_indexes)
 
     def past_columns(self):
         """Pasts copied columns"""
-        selected_columns = self.get_selected_columns_indexes()
-        self.tab_data_model.past_columns(selected_columns)
+        self.tab_data_model.past_columns(self.selected_columns_indexes)
         self.update_tab_table() ########################### finish
 
     def add_column_left(self) -> None:
@@ -188,7 +187,9 @@ class TableHeaders(QWidget):
         self.update_tab_table()
 
     def delete_columns(self) -> None:
-        pass
+        """ Delete selected columns"""
+        self.tab_data_model.delete_columns(self.selected_columns_indexes)
+        self.update_tab_table()
 
     def clear_columns(self):
         self.a = EntryDialogBox(
@@ -204,7 +205,8 @@ class TableHeaders(QWidget):
             "Author Not Found",
             """<p>Author not found in catalogue.</p>
             <p>Do you wish to continue?</p>""",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No)
 
 
     def update_tab_table(self) -> None:
@@ -219,7 +221,8 @@ class TableHeaders(QWidget):
             selected_rows = {self.v}
         return list(selected_rows)
 
-    def get_selected_columns_indexes(self) -> List[int]:
+    @property
+    def selected_columns_indexes(self) -> List[int]:
         """Returns set of indexes selected or clicked columns"""
         selected_columns = {cell.column() for cell in self.selectedIndexes()}
         if not selected_columns or self.v not in selected_columns:
