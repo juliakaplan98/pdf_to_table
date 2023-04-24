@@ -129,14 +129,12 @@ class TableHeaders(QWidget):
 
     def delete_rows(self) -> None:
         """Delete clicked row or rows selection"""
-        selected_rows = self.selected_rows_indexes()
-        self.tab_data_model.delete_row_by_index(selected_rows)
+        self.tab_data_model.delete_row_by_index(self.selected_rows_indexes)
         self.update_tab_table()
 
     def clear_rows(self):
         """Clear rows context"""
-        selected_rows = self.selected_rows_indexes()
-        self.tab_data_model.clear_rows(selected_rows)
+        self.tab_data_model.clear_rows(self.selected_rows_indexes)
         self.update_tab_table()
 
     def cut_columns(self):
@@ -151,7 +149,7 @@ class TableHeaders(QWidget):
     def past_columns(self):
         """Pasts copied columns"""
         self.tab_data_model.past_columns(self.selected_columns_indexes)
-        self.update_tab_table() ########################### finish
+        self.update_tab_table()
 
     def add_column_left(self) -> None:
         """ Creates new empty column on the left"""
@@ -193,7 +191,6 @@ class TableHeaders(QWidget):
         """ Clear selected columns"""
         self.tab_data_model.clean_columns_by_index(self.selected_columns_indexes)
         self.update_tab_table()
-
 
     def update_tab_table(self) -> None:
         """Update tab table with new data frame"""
