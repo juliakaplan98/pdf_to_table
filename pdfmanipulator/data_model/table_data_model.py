@@ -135,6 +135,14 @@ class TabDataModel:
         if update_undo:
             self.add_new_dataframe_in_undo_redo(new_df)
 
+    def clean_columns_by_index(self, indexes: List[int], update_undo: bool = True)->None:
+        """ Clean information in selected columns"""
+        columns = [self.header[i] for i in indexes]
+        new_df = self.tab.copy()
+        new_df.loc[0:, columns] = ''
+        if update_undo:
+            self.add_new_dataframe_in_undo_redo(new_df)
+
     def add_new_dataframe_in_undo_redo(self, new_df: pd.DataFrame) -> None:
         """Add new dataframe in undo redo"""
         self.undo_redo_stack.insert(0, new_df)

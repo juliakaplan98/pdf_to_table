@@ -110,13 +110,11 @@ class TableHeaders(QWidget):
 
     def copy_rows(self):
         """Copy selected or current rows"""
-        selected_rows = self.get_selected_rows_indexes()
-        self.tab_data_model.copy_rows_by_index(selected_rows)
+        self.tab_data_model.copy_rows_by_index(self.selected_rows_indexes)
 
     def past_rows(self):
         """Pasts copied rows"""
-        selected_rows = self.get_selected_rows_indexes()
-        self.tab_data_model.past_rows(selected_rows)
+        self.tab_data_model.past_rows(self.selected_rows_indexes)
         self.update_tab_table()
 
     def add_row_above(self) -> None:
@@ -131,13 +129,13 @@ class TableHeaders(QWidget):
 
     def delete_rows(self) -> None:
         """Delete clicked row or rows selection"""
-        selected_rows = self.get_selected_rows_indexes()
+        selected_rows = self.selected_rows_indexes()
         self.tab_data_model.delete_row_by_index(selected_rows)
         self.update_tab_table()
 
     def clear_rows(self):
         """Clear rows context"""
-        selected_rows = self.get_selected_rows_indexes()
+        selected_rows = self.selected_rows_indexes()
         self.tab_data_model.clear_rows(selected_rows)
         self.update_tab_table()
 
@@ -192,21 +190,9 @@ class TableHeaders(QWidget):
         self.update_tab_table()
 
     def clear_columns(self):
-        self.a = EntryDialogBox(
-            title="Column Name",
-            prompt="Please enter new column name.",
-            text="text")
-        self.a.show()
-        self.a.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        if self.a.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            print(self.a.text)
-        print(self.a.text)
-        answer = QMessageBox.question(self,
-            "Author Not Found",
-            """<p>Author not found in catalogue.</p>
-            <p>Do you wish to continue?</p>""",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.No)
+        """ Clear selected columns"""
+        self.tab_data_model.clean_columns_by_index(self.selected_columns_indexes)
+        self.update_tab_table()
 
 
     def update_tab_table(self) -> None:
@@ -214,7 +200,8 @@ class TableHeaders(QWidget):
         self.table_model = TableModel(self.tab_data_model)
         self.setModel(self.table_model)
 
-    def get_selected_rows_indexes(self) -> List[int]:
+    @property
+    def selected_rows_indexes(self) -> List[int]:
         """Returns set of indexes selected or clicked row"""
         selected_rows = {cell.row() for cell in self.selectedIndexes()}
         if not selected_rows or self.v not in selected_rows:
@@ -225,6 +212,6 @@ class TableHeaders(QWidget):
     def selected_columns_indexes(self) -> List[int]:
         """Returns set of indexes selected or clicked columns"""
         selected_columns = {cell.column() for cell in self.selectedIndexes()}
-        if not selected_columns or self.v not in selected_columns:
+        if not selected_columns or self.h not in selected_columns:
             selected_columns = {self.h}
         return list(selected_columns)
